@@ -43,6 +43,6 @@ class WallServiceTest {
         post = Post(4, 1, 1, 1, 6, "New text", 1, 1, true, comments)
         val result = WallService.update(post)
 
-        assertTrue(result) // Проверяем, что текст не обновился
+        assertFalse(result) // Проверяем, что текст не обновился
     }
 }
