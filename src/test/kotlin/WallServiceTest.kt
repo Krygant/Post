@@ -18,8 +18,7 @@ class WallServiceTest {
         val comments = Comments(0, true, true, true, true)
         val post = Post(1, 1, 1, 1, 6, "Hello!", 1, 1, true, comments)
         WallService.add(post) // Добавляем пост
-        val (id, _, _, _, _, _, _, _, _, _) = post
-        val result = id > 0
+        val result = post.id > 0
 
        assertTrue(result) // Проверяем, что текст успешно добавился
     }
