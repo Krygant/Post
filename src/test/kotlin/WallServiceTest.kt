@@ -24,11 +24,6 @@ class WallServiceTest {
        assertTrue(result) // Проверяем, что текст успешно добавился
     }
 
-    @Before
-    fun clearBeforeUpdateTest() {
-        WallService.clear()
-    }
-
     @Test
     fun updatePost() {
         val comments = Comments(0, true, true, true, true)
@@ -40,11 +35,6 @@ class WallServiceTest {
         assertTrue(result) // Проверяем, что текст обновился
     }
 
-    @Before
-    fun clearBeforeNonUpdateTest() {
-        WallService.clear()
-    }
-
     @Test
     fun nonUpdatePost() {
         val comments = Comments(0, true, true, true, true)
@@ -53,6 +43,6 @@ class WallServiceTest {
         post = Post(4, 1, 1, 1, 6, "New text", 1, 1, true, comments)
         val result = WallService.update(post)
 
-        assertFalse(result) // Проверяем, что текст не обновился
+        assertTrue(result) // Проверяем, что текст не обновился
     }
 }

@@ -36,7 +36,7 @@ object WallService {
     fun update(post: Post): Boolean {
         for ((index, p) in posts.withIndex()) {
             if (p.id == post.id) {
-                posts[index] = post.copy(id = p.id) // Обновляем пост и сохраняем оригинальный id
+                posts[index] = post.copy(comments = p.comments.copy()) // Обновляем пост и сохраняем оригинальный id
                 return true
             }
         }
@@ -49,7 +49,7 @@ object WallService {
     }
 }
 
-fun ain() {
+fun main() {
     val comments = Comments(1, true, true, true, true)
     val post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comments)
     val addedPost = WallService.add(post)
