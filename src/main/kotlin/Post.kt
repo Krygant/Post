@@ -49,7 +49,7 @@ object WallService {
     }
 }
 
-fun main() {
+fun ain() {
     val comments = Comments(1, true, true, true, true)
     val post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comments)
     val addedPost = WallService.add(post)
