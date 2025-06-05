@@ -43,6 +43,12 @@ object WallService {
         return false // Если пост не найден, возвращаем false
     }
 
+    fun printPosts(){
+        for (post in posts){
+            println(post)
+        }
+    }
+
     fun clear() {
         posts = emptyArray()
         nextId = 1
@@ -50,10 +56,18 @@ object WallService {
 }
 
 fun main() {
-    val comments = Comments(1, true, true, true, true)
-    val post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comments)
+    var comments = Comments(1, true, true, true, true)
+    var post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comments)
+    WallService.add(post)
+    comments = Comments(1, true, true, true, true)
+    post = Post(0, 1, 1, 1, 6, "Bye!", 1, 1, true, comments)
+    WallService.add(post)
+    comments = Comments(1, true, true, true, true)
+    post = Post(0, 1, 1, 1, 6, "Some text!", 1, 1, true, comments)
     val addedPost = WallService.add(post)
-    println(addedPost) // Печатаем добавленный пост
+    WallService.printPosts()
+
+    println(addedPost.id) // Печатаем добавленный пост
     // Попробуем обновить наш пост
     val updatedPost = Post(addedPost.id, 1, 1, 1, 6, "Updated text!", 1, 1, true, comments)
     val updateResult = WallService.update(updatedPost)

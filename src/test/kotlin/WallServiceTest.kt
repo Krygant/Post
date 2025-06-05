@@ -16,11 +16,10 @@ class WallServiceTest {
     @Test
     fun addPost() {
         val comments = Comments(0, true, true, true, true)
-        val post = Post(1, 1, 1, 1, 6, "Hello!", 1, 1, true, comments)
-        WallService.add(post) // Добавляем пост
-        val result = post.id > 0
+        var post = Post(1, 1, 1, 1, 6, "Hello!", 1, 1, true, comments)
+        val checkPost: Post = WallService.add(post) // Добавляем пост
 
-       assertTrue(result) // Проверяем, что текст успешно добавился
+       assertTrue(checkPost.id == 1) // Проверяем, что текст успешно добавился
     }
 
     @Test
