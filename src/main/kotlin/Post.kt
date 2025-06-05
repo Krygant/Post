@@ -65,12 +65,16 @@ fun main() {
     comments = Comments(1, true, true, true, true)
     post = Post(0, 1, 1, 1, 6, "Some text!", 1, 1, true, comments)
     val addedPost = WallService.add(post)
-    WallService.printPosts()
+    WallService.printPosts() //вывожу на экран все добавленные посты
 
     println(addedPost.id) // Печатаем добавленный пост
     // Попробуем обновить наш пост
-    val updatedPost = Post(addedPost.id, 1, 1, 1, 6, "Updated text!", 1, 1, true, comments)
-    val updateResult = WallService.update(updatedPost)
+    var updatedPost = Post(addedPost.id, 1, 1, 1, 6, "Updated text!", 1, 1, true, comments)
+    var updateResult = WallService.update(updatedPost)
+    println("Update successful: $updateResult")
+    updatedPost = Post(2, 1,1,1,1,"SimpleText", 1, 1, true, comments)
+    updateResult = WallService.update(updatedPost)
     println("Update successful: $updateResult")
     println("Updated post: ${WallService.posts.last()}")
+    println("Updated post: ${WallService.posts[1]}")
 }
