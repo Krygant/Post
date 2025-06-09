@@ -2,17 +2,10 @@
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import ru.netology.Audio
-import ru.netology.AudioAttachment
-import ru.netology.WallService
 import ru.netology.Comments
-import ru.netology.Document
-import ru.netology.DocumentAttachment
-import ru.netology.Link
-import ru.netology.LinkAttachment
 import ru.netology.Post
-import ru.netology.Video
-import ru.netology.VideoAttachment
+import ru.netology.Attachment.*
+import ru.netology.WallService
 
 class WallServiceTest {
 
