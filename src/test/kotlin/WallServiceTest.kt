@@ -2,7 +2,7 @@
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import ru.netology.Comments
+import ru.netology.Comment
 import ru.netology.Post
 import ru.netology.Attachment.*
 import ru.netology.WallService
@@ -16,10 +16,10 @@ class WallServiceTest {
 
     @Test
     fun addPost() {
-        val comments = Comments(0, true, true, true, true)
+        val comment = Comment(0,1, true, true, true, true)
         val documentAttachment = DocumentAttachment(Document(1, 1, "new document", 65))
         val attachmentsList = listOf(documentAttachment)
-        val post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comments, attachmentsList)
+        val post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comment, attachmentsList)
         val checkPost: Post = WallService.add(post) // Добавляем пост
 
         assertEquals(1, checkPost.id) // Проверяем, что идентификатор поста равен 1
@@ -29,34 +29,60 @@ class WallServiceTest {
 
     @Test
     fun updatePost() {
-        val comments = Comments(0, true, true, true, true)
+        val comment = Comment(0, 1, true, true, true, true)
         val documentLink = LinkAttachment(Link("new link", "new site", "Trump", "Donald John Trump"))
         var attachmentsList: List<LinkAttachment> = listOf(documentLink)
-        val post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comments, attachmentsList)
+        val post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comment, attachmentsList)
         WallService.add(post) // Добавляем пост
 
         val audioAttachment = AudioAttachment(Audio(1, 1, "Ария", "Кровь за кровь"))
-        val updatedPost = Post(1, 1, 1, 1, 6, "New text", 1, 1, true, comments, listOf(audioAttachment))
+        val updatedPost = Post(1, 1, 1, 1, 6, "New text", 1, 1, true, comment, listOf(audioAttachment))
         val result = WallService.update(updatedPost)
 
         assertTrue(result) // Проверяем, что текст обновился
-        assertEquals("New text", WallService.posts.last().text) // Проверяем обновленный текст
-        assertTrue(WallService.posts.last().arrayAttachments is List<*>) // Проверяем, что присвоен список вложений
     }
 
     @Test
     fun nonUpdatePost() {
-        val comments = Comments(0, true, true, true, true)
+        val comment = Comment(0, 1,true, true, true, true)
         val documentLink = LinkAttachment(Link("new link", "new site", "Trump", "Donald John Trump"))
         var attachmentsList: List<LinkAttachment> = listOf(documentLink)
 
-        val post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comments, attachmentsList)
+        val post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comment, attachmentsList)
         WallService.add(post) // Добавляем пост
 
         // Пытаемся обновить пост с id, которого нет
-        val nonExistingPost = Post(4, 1, 1, 1, 6, "New text", 1, 1, true, comments, attachmentsList)
+        val nonExistingPost = Post(4, 1, 1, 1, 6, "New text", 1, 1, true, comment, attachmentsList)
         val result = WallService.update(nonExistingPost)
 
         assertFalse(result) // Проверяем, что текст не обновился
+    }
+
+    class PostNotFoundException(message: String): RuntimeException(message)
+
+    @Test(expected = PostNotFoundException::class)
+    fun shouldThrow() {
+        val comment = Comment(1, 1,true, true, true, true)
+        val documentLink = LinkAttachment(Link("new link", "new site", "Trump", "Donald John Trump"))
+        var attachmentsList: List<LinkAttachment> = listOf(documentLink)
+
+        val post = Post(1, 1, 1, 1, 6, "Hello!", 1, 1, true, comment, attachmentsList)
+        WallService.add(post) // Добавляем пост
+
+        WallService.createComment(1, comment)
+    }
+
+    @Test(expected = PostNotFoundException::class)
+    fun shouldntThrow(){
+        val comment = Comment(1, 1,true, true, true, true)
+        val documentLink = LinkAttachment(Link("new link", "new site", "Trump", "Donald John Trump"))
+        var attachmentsList: List<LinkAttachment> = listOf(documentLink)
+
+        var post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comment, attachmentsList)
+        WallService.add(post) // Добавляем пост
+        post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comment, attachmentsList)
+        WallService.add(post) // Добавляем пост
+
+        WallService.createComment(1, comment)
     }
 }

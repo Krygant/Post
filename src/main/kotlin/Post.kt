@@ -1,6 +1,7 @@
 package ru.netology
 import ru.netology.Attachment.*
 
+
 data class Post(
     val id: Int,                 // Идентификатор записи
     val ownerId: Int?,           // Идентификатор владельца стены
@@ -11,13 +12,28 @@ data class Post(
     val replyOwnerId: Int,       // Идентификатор владельца записи, в ответ на которую была оставлена текущая
     val replyPostId: Int,        // Идентификатор записи, в ответ на которую была оставлена текущая
     val friendsOnly: Boolean,    // true если запись только для друзей
-    var comments: Comments,      // Информация о комментариях к записи, объект с полями
-    var arrayAttachments: List<Attachments>
+    var comment: Comment,      // Информация о комментариях к записи, объект с полями
+    var arrayAttachments: List<Attachments>//поле для хранения вложений
+
 )
 
+class PostNotFoundException(message: String): RuntimeException(message)
+
 object WallService {
-    var posts = emptyArray<Post>()
     private var nextId = 1 // Переменная для хранения следующего уникального id
+    private var posts = emptyArray<Post>()
+    private var comments = emptyArray<Comment>()
+
+
+    fun createComment(postId: Int, comment: Comment): Comment {
+        for (post in posts) {
+            if (postId == post.id){
+                comments += comment
+                return comment
+            }
+        }
+        return throw PostNotFoundException("Поста с номером $postId не существует")
+    }
 
     fun add(post: Post): Post {
         val newPost = post.copy(id = nextId) // Копируем пост с новым id
@@ -29,7 +45,7 @@ object WallService {
     fun update(post: Post): Boolean {
         for ((index, p) in posts.withIndex()) {
             if (p.id == post.id) {
-                posts[index] = post.copy(comments = p.comments.copy(), arrayAttachments = post.arrayAttachments) // Обновляем пост и сохраняем оригинальный id
+                posts[index] = post.copy(comment = p.comment.copy(), arrayAttachments = post.arrayAttachments) // Обновляем пост и сохраняем оригинальный id
                 return true
             }
         }
@@ -49,21 +65,21 @@ object WallService {
 }
 
 fun main() {
-    var comments = Comments(1, true, true, true, true)
+    var comment = Comment(1,1, true, true, true, true)
 
     // Создаем вложения
     var photoAttachment = PhotoAttachment(Photo(1, 1, "photo130.jpg", "photo604.jpg"))
     var videoAttachment = VideoAttachment(Video(1, 1, "My Video", 120))
     var attachmentsList = listOf(photoAttachment, videoAttachment)
-    var post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comments, attachmentsList)
+    var post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comment, attachmentsList)
     WallService.add(post)
 
     // Новый пост с обновлениями
-    comments = Comments(1, true, true, true, true)
+    comment = Comment(2, 1,true, true, true, true)
     photoAttachment = PhotoAttachment(Photo(1, 1, "photo111.jpg", "photo4444.jpg"))
     videoAttachment = VideoAttachment(Video(1, 1, "Updated Video", 120))
     attachmentsList = listOf(photoAttachment, videoAttachment)
-    post = Post(0, 1, 1, 1, 6, "Updated bye!", 1, 1, true, comments, attachmentsList)
+    post = Post(0, 1, 1, 1, 6, "Updated bye!", 1, 1, true, comment, attachmentsList)
 
     val addedPost = WallService.add(post)
     WallService.printPosts() //вывожу на экран все добавленные посты
@@ -71,9 +87,13 @@ fun main() {
     println("Added Post ID: ${addedPost.id}") // Печатаем добавленный пост
 
     // Попробуем обновить наш пост
-    var updatedPost = Post(addedPost.id, 1, 1, 1, 6, "Updated text with attachments!", 1, 1, true, comments, attachmentsList)
+    var updatedPost = Post(addedPost.id, 1, 1, 1, 6, "Updated text with attachments!", 1, 1, true, comment, attachmentsList)
     var updateResult = WallService.update(updatedPost)
     println("Update successful: $updateResult")
 
     WallService.printPosts() // Проверяем обновленные посты
+
+    println(WallService.createComment(1, comment))
+    println(WallService.createComment(4, comment))
+
 }
