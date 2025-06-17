@@ -20,46 +20,67 @@ data class Post(
 class PostNotFoundException(message: String): RuntimeException(message)
 
 object WallService {
-    private var nextId = 1 // Переменная для хранения следующего уникального id
-    private var posts = emptyArray<Post>()
-    private var comments = emptyArray<Comment>()
+    private var nextId = 1 // Следующий уникальный идентификатор
+    private var posts = mutableListOf<Post>() // Используем MutableList для удобства работы
+    private var comments = mutableListOf<Comment>()
 
-
+    /**
+     * Метод добавляет комментарий к существующему посту
+     */
     fun createComment(postId: Int, comment: Comment): Comment {
-        for (post in posts) {
-            if (postId == post.id){
-                comments += comment
-                return comment
-            }
+        // Поиск поста по идентификатору
+        val existingPost = findPostById(postId)
+
+        if (existingPost != null) { // Пост найден
+            comments.add(comment)
+            return comment
+        } else {
+            throw PostNotFoundException("Пост с номером $postId не существует")
         }
-        return throw PostNotFoundException("Поста с номером $postId не существует")
     }
 
+    /**
+     * Метод создает новую запись на стене
+     */
     fun add(post: Post): Post {
-        val newPost = post.copy(id = nextId) // Копируем пост с новым id
-        posts += newPost // Добавляем новый пост в массив
-        nextId++ // Увеличиваем следующий id для следующей записи
-        return newPost // Возвращаем пост с уникальным id
+        val newPost = post.copy(id = nextId++) // Присваиваем уникальный id и увеличиваем счетчик
+        posts.add(newPost)                     // Добавляем новый пост в коллекцию
+        return newPost                         // Возвращаем созданный пост
     }
 
+    /**
+     * Метод обновляет существующий пост
+     */
     fun update(post: Post): Boolean {
-        for ((index, p) in posts.withIndex()) {
-            if (p.id == post.id) {
-                posts[index] = post.copy(comment = p.comment.copy(), arrayAttachments = post.arrayAttachments) // Обновляем пост и сохраняем оригинальный id
-                return true
-            }
+        val index = posts.indexOfFirst { it.id == post.id } // Находим индекс по идентификатору
+        if (index >= 0) {                                  // Индекс найден
+            posts[index] = post                             // Обновляем запись
+            return true                                     // Возврат успешности операции
         }
-        return false // Если пост не найден, возвращаем false
+        return false                                        // Пост не найден
     }
 
-    fun printPosts(){
-        for (post in posts){
+    /**
+     * Вспомогательная функция для поиска поста по id
+     */
+    private fun findPostById(id: Int): Post? =
+        posts.find { it.id == id } // Поиск поста по идентификатору
+
+    /**
+     * Метод выводит список всех постов
+     */
+    fun printPosts() {
+        for (post in posts) {
             println(post)
         }
     }
 
+    /**
+     * Очистка хранилища постов и комментариев
+     */
     fun clear() {
-        posts = emptyArray()
+        posts.clear()
+        comments.clear()
         nextId = 1
     }
 }
@@ -94,6 +115,6 @@ fun main() {
     WallService.printPosts() // Проверяем обновленные посты
 
     println(WallService.createComment(1, comment))
-    println(WallService.createComment(4, comment))
+    println(WallService.createComment(45, comment))
 
 }
