@@ -60,19 +60,19 @@ class WallServiceTest {
 
     class PostNotFoundException(message: String): RuntimeException(message)
 
-    @Test(expected = PostNotFoundException::class)
+    @Test(expected = ru.netology.PostNotFoundException::class)
     fun shouldThrow() {
-        val comment = Comment(1, 1,true, true, true, true)
+        val comment = Comment(1, 1, true, true, true, true)
         val documentLink = LinkAttachment(Link("new link", "new site", "Trump", "Donald John Trump"))
         var attachmentsList: List<LinkAttachment> = listOf(documentLink)
 
         val post = Post(0, 1, 1, 1, 6, "Hello!", 1, 1, true, comment, attachmentsList)
         WallService.add(post) // Добавляем пост
-
-        WallService.createComment(1, comment)
+        var postId = 100 // Несуществующий идентификатор поста
+        WallService.createComment(postId, comment)
     }
 
-    @Test(expected = PostNotFoundException::class)
+    @Test
     fun shouldntThrow(){
         val comment = Comment(2, 1,true, true, true, true)
         val documentLink = LinkAttachment(Link("new link", "new site", "Trump", "Donald John Trump"))
@@ -86,15 +86,5 @@ class WallServiceTest {
         var result = WallService.createComment(1,comment)
 
         assertEquals(comment, result)
-    }
-
-    @Test
-    fun testCreateCommentWithNonExistingPost() {
-        try {
-            WallService.createComment(2, Comment(1, 1, true, true, true, true)) // несуществующий идентификатор
-            assert(false) // Если исключение не выброшено, значит тест провалился
-        } catch (e: PostNotFoundException) {
-            assert(e.message == "Пост с номером 999 не существует") // Проверьте сообщение исключения
-        }
     }
 }
