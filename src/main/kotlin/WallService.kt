@@ -87,7 +87,7 @@ object WallService {
                     // Проставить flag 'isDeleted' для всех комментариев поста
                     postToDelete.commentsMutableList.forEach { it.isDeleted = true }
                 }
-            }
+            } else throw PostNotFoundException("Пост с номером ${id.toInt()} не существует")
         }
 
         override fun edit(entity: Post) {
@@ -129,9 +129,9 @@ object WallService {
             }
         }
 
-        override fun delete(id: Long) {
+        override fun delete(id: Long, idParents: Long) {
             // Ищем пост, связанный с указанным ID
-            val existingPost = findPostById(id.toInt())
+            val existingPost = findPostById(idParents.toInt())
             if (existingPost != null) {
                 // Пробегаемся по всем комментариям поста и находим нужный
                 val commentIndex = existingPost.commentsMutableList.indexOfFirst { it.id == id.toInt() }
@@ -146,7 +146,7 @@ object WallService {
                     throw PostNotFoundException("Комментарий с номером $id не найден")
                 }
             } else {
-                throw PostNotFoundException("Пост с номером $id не существует")
+                throw PostNotFoundException("Пост с номером $idParents не существует")
             }
         }
 
@@ -339,9 +339,9 @@ fun main() {
 
     WallService.printPosts()
 
-    commentService.delete(1)
+    commentService.delete(1, 1)
 
-    println("после удаления комментария")
+    println("после удаления комментария id = 1 поста id = 1")
 
     WallService.printPosts()
 
@@ -356,14 +356,5 @@ fun main() {
     )
 
     postService.delete(23)
-
-//    // Удаляю все комментарии связанные с постом id = 1
-//    WallService.CommentService(comment).delete(1)
-//
-//    // Выполняем очистку всей структуры
-//    WallService.clear()
-//
-//    // Проверим состояние после очистки
-//    println(WallService.PostService(post).read()) // Должна вернуться пустая коллекция
 
 }

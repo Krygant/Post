@@ -1,5 +1,7 @@
-import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.*
+package ru.netology.test
+
+import org.junit.*
+import org.junit.rules.ExpectedException
 import ru.netology.Attachment
 import ru.netology.Comment
 import ru.netology.Post
@@ -7,12 +9,15 @@ import ru.netology.PostNotFoundException
 import ru.netology.WallService
 
 class WallServiceTest {
-    val postService = WallService.PostService()
-    val commentService = WallService.CommentService()
 
-    @BeforeEach
+    lateinit var postService: WallService.PostService
+    lateinit var commentService: WallService.CommentService
+
+    @Before
     fun setUp() {
         WallService.clear()
+        postService = WallService.PostService()
+        commentService = WallService.CommentService()
     }
 
     @Test
@@ -35,8 +40,8 @@ class WallServiceTest {
         val addedPostId = postService.add(post)
         val foundPost = WallService.findPostById(addedPostId.toInt())
 
-        assertEquals(foundPost?.text, "Первый пост") // Проверяем текст
-        assertEquals(foundPost?.arrayAttachments, listOf(attachment)) // Проверяем прикреплённую документацию
+        Assert.assertEquals("Первый пост", foundPost!!.text) // Проверка текста
+        Assert.assertEquals(listOf(attachment), foundPost.arrayAttachments) // Проверка документа
     }
 
     @Test
@@ -60,9 +65,9 @@ class WallServiceTest {
         val updatedPost = originalPost.copy(text = "Новое содержимое")
         val success = WallService.update(updatedPost)
 
-        assertTrue(success)
+        Assert.assertTrue(success) // Успешное обновление?
         val foundPost = WallService.findPostById(updatedPost.id)
-        assertEquals(foundPost?.text, "Новое содержимое")
+        Assert.assertEquals("Новое содержимое", foundPost!!.text)
     }
 
     @Test
@@ -83,43 +88,59 @@ class WallServiceTest {
 
         postService.add(originalPost)
 
-        val nonExistentPost = originalPost.copy(id = 999)
+        val nonExistentPost = originalPost.copy(id = 999) // Пост с несуществующим ID
         val success = WallService.update(nonExistentPost)
 
-        assertFalse(success)
+        Assert.assertFalse(success) // Ожидали неудачу обновления несуществующего поста
     }
 
-    @Nested
-    inner class RetrieveTests {
-        @Test
-        fun retrieveNonexistentPost() {
-            val nonExistPost = WallService.findPostById(999)
-            assertEquals(null, nonExistPost)
-        }
+    @Test
+    fun retrieveNonexistentPost() {
+        val nonExistPost = WallService.findPostById(999)
+        Assert.assertNull(nonExistPost)
     }
 
-    @Nested
-    inner class CleanupTests {
-        @Test
-        fun cleanupData() {
-            val post = Post(
-                id = 0,
-                ownerId = 1,
-                fromID = 1,
-                createdBy = 1,
-                date = System.currentTimeMillis().toInt(),
-                text = "Последний пост",
-                replyOwnerId = 1,
-                replyPostId = 1,
-                friendsOnly = true,
-                arrayAttachments = emptyList(),
-                commentsMutableList = mutableListOf()
-            )
+    @Test
+    fun cleanupData() {
+        val post = Post(
+            id = 0,
+            ownerId = 1,
+            fromID = 1,
+            createdBy = 1,
+            date = System.currentTimeMillis().toInt(),
+            text = "Последний пост",
+            replyOwnerId = 1,
+            replyPostId = 1,
+            friendsOnly = true,
+            arrayAttachments = emptyList(),
+            commentsMutableList = mutableListOf()
+        )
 
-            postService.add(post)
-            WallService.clear()
-            val retrievedPost = WallService.findPostById(post.id)
-            assertEquals(null, retrievedPost)
-        }
+        postService.add(post)
+        WallService.clear()
+        val retrievedPost = WallService.findPostById(post.id)
+        Assert.assertNull(retrievedPost)
+    }
+
+    @Rule
+    @JvmField
+    val thrown: ExpectedException = ExpectedException.none()
+
+    @Test
+    fun testAddCommentToNonExistingPost() {
+        val comment = Comment(
+            id = 1,
+            parentPostId = 999, // несуществующий идентификатор поста
+            count = 2,
+            canPost = true,
+            groupsCanPost = true,
+            canClose = true,
+            canOpen = true
+        )
+
+        thrown.expect(PostNotFoundException::class.java)
+        thrown.expectMessage("Пост с номером 999 не существует")
+
+        commentService.add(comment)
     }
 }
